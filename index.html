@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Random Sentence</title>
+  <style>
+    body { font-family: system-ui, Arial, sans-serif; padding: 24px; max-width: 720px; margin: 0 auto; }
+    .card { border: 1px solid #ddd; border-radius: 12px; padding: 18px; }
+    h1 { font-size: 18px; margin: 0 0 12px; }
+    p { font-size: 22px; line-height: 1.35; margin: 0 0 16px; }
+    button { padding: 10px 14px; border-radius: 10px; border: 1px solid #ccc; background: #fff; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Your random sentence:</h1>
+    <p id="sentence">Loading…</p>
+    <button id="again">Show another</button>
+  </div>
+
+  <script>
+    const sentences = [
+      "Sentence 1 goes here.",
+      "Sentence 2 goes here.",
+      "Sentence 3 goes here."
+      // Add the rest.
+    ];
+
+    function showRandom() {
+      const i = Math.floor(Math.random() * sentences.length);
+      document.getElementById("sentence").textContent = sentences[i];
+    }
+
+    document.getElementById("again").addEventListener("click", showRandom);
+    showRandom(); // rerandomizes on every page load/refresh
+  </script>
+</body>
+</html>
