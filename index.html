@@ -1,77 +1,103 @@
-<script>
-  const sentences = [
-    "Turkey's national bird is the Redwing. They really winged it.",
-    "If you're scared of escalators, there are steps you can take.",
-    "I got some powdered water. I didn't know what to add.",
-    "My IQ test results came back. They were negative."
-    // Add more here
-  ];
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Random Sentence</title>
+  <style>
+    body { font-family: system-ui, Arial, sans-serif; padding: 24px; max-width: 720px; margin: 0 auto; }
+    .card { border: 1px solid #ddd; border-radius: 12px; padding: 18px; }
+    h1 { font-size: 18px; margin: 0 0 12px; }
+    p { font-size: 22px; line-height: 1.35; margin: 0 0 16px; }
+    button { padding: 10px 14px; border-radius: 10px; border: 1px solid #ccc; background: #fff; cursor: pointer; }
 
-  const IMAGE_COUNT = 3;        // how many images you have
-  const IMAGE_PREFIX = "img";   // filename prefix
-  const IMAGE_EXT = ".jpg";     // extension
-  const IMAGE_PATH = "images/";
+    .fade { opacity: 0; transition: opacity 250ms ease-in; }
+    .fade.show { opacity: 1; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Your random sentence:</h1>
 
-  const images = Array.from({ length: IMAGE_COUNT }, (_, i) => {
-    const num = String(i + 1).padStart(2, "0");
-    return `${IMAGE_PATH}${IMAGE_PREFIX}${num}${IMAGE_EXT}`;
-  });
+    <img
+      id="pic"
+      class="fade"
+      style="max-width:100%; height:auto; border-radius:12px; margin-bottom:14px;"
+      alt="Random image"
+    />
 
-  function getLastIndex(key) {
-    const raw = localStorage.getItem(key);
-    const n = Number(raw);
-    return Number.isInteger(n) ? n : -1;
-  }
+    <p id="sentence" class="fade">Loading…</p>
 
-  function setLastIndex(key, index) {
-    localStorage.setItem(key, String(index));
-  }
+    <button id="again" type="button">Show another</button>
+  </div>
 
-  function randomIndex(length, lastIndex) {
-    if (length <= 1) return 0;
+  <script>
+    const sentences = [
+      "Turkey's national bird is the Redwing. They really winged it.",
+      "If you're scared of escalators, there are steps you can take.",
+      "I got some powdered water. I didn't know what to add.",
+      "My IQ test results came back. They were negative."
+      // Add more here
+    ];
 
-    let i = Math.floor(Math.random() * length);
-    while (i === lastIndex) {
-      i = Math.floor(Math.random() * length);
+    const IMAGE_COUNT = 3;        // how many images you have
+    const IMAGE_PREFIX = "img";   // filename prefix
+    const IMAGE_EXT = ".jpg";     // extension
+    const IMAGE_PATH = "images/";
+
+    const images = Array.from({ length: IMAGE_COUNT }, (_, i) => {
+      const num = String(i + 1).padStart(2, "0");
+      return `${IMAGE_PATH}${IMAGE_PREFIX}${num}${IMAGE_EXT}`;
+    });
+
+    function getLastIndex(key) {
+      const raw = localStorage.getItem(key);
+      const n = Number(raw);
+      return Number.isInteger(n) ? n : -1;
     }
-    return i;
-  }
 
-  function fadeIn(el) {
-    el.classList.remove("show");
-    void el.offsetWidth; // restart transition
-    requestAnimationFrame(() => el.classList.add("show"));
-  }
+    function setLastIndex(key, index) {
+      localStorage.setItem(key, String(index));
+    }
 
-  function showRandom() {
-    const lastSentenceIndex = getLastIndex("lastSentenceIndex");
-    const lastImageIndex = getLastIndex("lastImageIndex");
+    function randomIndex(length, lastIndex) {
+      if (length <= 1) return 0;
+      let i = Math.floor(Math.random() * length);
+      while (i === lastIndex) i = Math.floor(Math.random() * length);
+      return i;
+    }
 
-    const sIndex = randomIndex(sentences.length, lastSentenceIndex);
-    const iIndex = randomIndex(images.length, lastImageIndex);
+    function fadeIn(el) {
+      el.classList.remove("show");
+      void el.offsetWidth;
+      requestAnimationFrame(() => el.classList.add("show"));
+    }
 
-    setLastIndex("lastSentenceIndex", sIndex);
-    setLastIndex("lastImageIndex", iIndex);
+    function showRandom() {
+      const lastSentenceIndex = getLastIndex("lastSentenceIndex");
+      const lastImageIndex = getLastIndex("lastImageIndex");
 
-    const sentenceEl = document.getElementById("sentence");
-    const imgEl = document.getElementById("pic");
+      const sIndex = randomIndex(sentences.length, lastSentenceIndex);
+      const iIndex = randomIndex(images.length, lastImageIndex);
 
-    sentenceEl.textContent = sentences[sIndex];
-    fadeIn(sentenceEl);
+      setLastIndex("lastSentenceIndex", sIndex);
+      setLastIndex("lastImageIndex", iIndex);
 
-    imgEl.classList.remove("show");
-    imgEl.onload = () => fadeIn(imgEl);
-    imgEl.onerror = () => fadeIn(imgEl);
+      const sentenceEl = document.getElementById("sentence");
+      const imgEl = document.getElementById("pic");
 
-    imgEl.src = images[iIndex];
-    imgEl.alt = "Random image";
-  }
+      sentenceEl.textContent = sentences[sIndex];
+      fadeIn(sentenceEl);
 
-  document.getElementById("again").addEventListener("click", showRandom);
+      imgEl.classList.remove("show");
+      imgEl.onload = () => fadeIn(imgEl);
+      imgEl.onerror = () => fadeIn(imgEl);
+      imgEl.src = images[iIndex];
+    }
 
-  // Ensure fade starts hidden, then shows
-  document.getElementById("sentence").classList.add("fade");
-  document.getElementById("pic").classList.add("fade");
+    document.getElementById("again").addEventListener("click", showRandom);
 
-  showRandom();
-</script>
+    showRandom();
+  </script>
+</body>
+</html>
