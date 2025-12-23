@@ -1,39 +1,82 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Random Sentence</title>
-  <style>
-    body { font-family: system-ui, Arial, sans-serif; padding: 24px; max-width: 720px; margin: 0 auto; }
-    .card { border: 1px solid #ddd; border-radius: 12px; padding: 18px; }
-    h1 { font-size: 18px; margin: 0 0 12px; }
-    p { font-size: 22px; line-height: 1.35; margin: 0 0 16px; }
-    button { padding: 10px 14px; border-radius: 10px; border: 1px solid #ccc; background: #fff; }
-  </style>
-</head>
-<body>
-  <div class="card">
-    <h1>Your random sentence:</h1>
-    <p id="sentence">Loading…</p>
-    <button id="again">Show another</button>
-  </div>
+<script>
+  const sentences = [
+    "Turkey's national bird is the Redwing. They really winged it.",
+    "If you're scared of escalators, there are steps you can take.",
+    "I got some powdered water. I didn't know what to add.",
+    "My IQ test results came back. They were negative."
+    // Add more here
+  ];
 
-  <script>
-    const sentences = [
-      "Sentence 1 goes here.",
-      "Sentence 2 goes here.",
-      "Sentence 3 goes here."
-      // Add the rest.
-    ];
+<script>
+  const IMAGE_COUNT = 3;        // how many images you have
+  const IMAGE_PREFIX = "img";   // filename prefix
+  const IMAGE_EXT = ".jpg";     // extension
+  const IMAGE_PATH = "images/";
 
-    function showRandom() {
-      const i = Math.floor(Math.random() * sentences.length);
-      document.getElementById("sentence").textContent = sentences[i];
+  const images = Array.from({ length: IMAGE_COUNT }, (_, i) => {
+    const num = String(i + 1).padStart(2, "0");
+    return `${IMAGE_PATH}${IMAGE_PREFIX}${num}${IMAGE_EXT}`;
+  });
+</script>
+
+
+  function getLastIndex(key) {
+    const raw = localStorage.getItem(key);
+    const n = Number(raw);
+    return Number.isInteger(n) ? n : -1;
+  }
+
+  function setLastIndex(key, index) {
+    localStorage.setItem(key, String(index));
+  }
+
+  function randomIndex(length, lastIndex) {
+    if (length <= 1) return 0;
+
+    let i = Math.floor(Math.random() * length);
+    while (i === lastIndex) {
+      i = Math.floor(Math.random() * length);
     }
+    return i;
+  }
 
-    document.getElementById("again").addEventListener("click", showRandom);
-    showRandom(); // rerandomizes on every page load/refresh
-  </script>
-</body>
-</html>
+  function fadeIn(el) {
+    el.classList.remove("show");
+    // Force reflow so the transition restarts
+    void el.offsetWidth;
+    requestAnimationFrame(() => el.classList.add("show"));
+  }
+
+  function showRandom() {
+    const lastSentenceIndex = getLastIndex("lastSentenceIndex");
+    const lastImageIndex = getLastIndex("lastImageIndex");
+
+    const sIndex = randomIndex(sentences.length, lastSentenceIndex);
+    const iIndex = randomIndex(images.length, lastImageIndex);
+
+    setLastIndex("lastSentenceIndex", sIndex);
+    setLastIndex("lastImageIndex", iIndex);
+
+    const sentenceEl = document.getElementById("sentence");
+    const imgEl = document.getElementById("pic");
+
+    sentenceEl.textContent = sentences[sIndex];
+    imgEl.src = images[iIndex];
+    imgEl.alt = "Random image";
+
+    fadeIn(sentenceEl);
+
+    // Fade image after it loads (avoids fading in a blank box)
+    imgEl.classList.remove("show");
+    imgEl.onload = () => fadeIn(imgEl);
+    imgEl.onerror = () => fadeIn(imgEl); // still fade in if missing image
+  }
+
+  document.getElementById("again").addEventListener("click", showRandom);
+
+  // Start hidden, then show the first random result
+  document.getElementById("sentence").classList.add("fade");
+  document.getElementById("pic").classList.add("fade");
+
+  showRandom();
+</script>
