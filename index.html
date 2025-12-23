@@ -7,7 +7,6 @@
     // Add more here
   ];
 
-<script>
   const IMAGE_COUNT = 3;        // how many images you have
   const IMAGE_PREFIX = "img";   // filename prefix
   const IMAGE_EXT = ".jpg";     // extension
@@ -17,8 +16,6 @@
     const num = String(i + 1).padStart(2, "0");
     return `${IMAGE_PATH}${IMAGE_PREFIX}${num}${IMAGE_EXT}`;
   });
-</script>
-
 
   function getLastIndex(key) {
     const raw = localStorage.getItem(key);
@@ -42,8 +39,7 @@
 
   function fadeIn(el) {
     el.classList.remove("show");
-    // Force reflow so the transition restarts
-    void el.offsetWidth;
+    void el.offsetWidth; // restart transition
     requestAnimationFrame(() => el.classList.add("show"));
   }
 
@@ -61,20 +57,19 @@
     const imgEl = document.getElementById("pic");
 
     sentenceEl.textContent = sentences[sIndex];
-    imgEl.src = images[iIndex];
-    imgEl.alt = "Random image";
-
     fadeIn(sentenceEl);
 
-    // Fade image after it loads (avoids fading in a blank box)
     imgEl.classList.remove("show");
     imgEl.onload = () => fadeIn(imgEl);
-    imgEl.onerror = () => fadeIn(imgEl); // still fade in if missing image
+    imgEl.onerror = () => fadeIn(imgEl);
+
+    imgEl.src = images[iIndex];
+    imgEl.alt = "Random image";
   }
 
   document.getElementById("again").addEventListener("click", showRandom);
 
-  // Start hidden, then show the first random result
+  // Ensure fade starts hidden, then shows
   document.getElementById("sentence").classList.add("fade");
   document.getElementById("pic").classList.add("fade");
 
