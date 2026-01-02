@@ -67,32 +67,46 @@
 
 <script>
   let sentences = [];
+  let images = [];
+  let sentencesLoaded = false;
+  let imagesLoaded = false;
 
   fetch("sentences.txt")
-    .then(response => response.text())
+    .then(r => r.text())
     .then(text => {
       sentences = text
         .split("\n")
-        .map(line => line.trim())
-        .filter(line => line.length > 0);
-
-      showRandom(); // run only after sentences load
+        .map(l => l.trim())
+        .filter(Boolean);
+      sentencesLoaded = true;
+      tryStart();
     })
     .catch(err => {
       console.error("Failed to load sentences.txt", err);
       sentences = ["Error loading sentences."];
-      showRandom();
+      sentencesLoaded = true;
+      tryStart();
     });
 
-  const IMAGE_COUNT = 3;
-  const IMAGE_PREFIX = "img";
-  const IMAGE_EXT = ".jpg";
-  const IMAGE_PATH = "images/";
+  fetch("images.json")
+    .then(r => r.json())
+    .then(list => {
+      images = list;
+      imagesLoaded = true;
+      tryStart();
+    })
+    .catch(err => {
+      console.error("Failed to load images.json", err);
+      images = [];
+      imagesLoaded = true;
+      tryStart();
+    });
 
-  const images = Array.from({ length: IMAGE_COUNT }, (_, i) => {
-    const num = String(i + 1).padStart(2, "0");
-    return `${IMAGE_PATH}${IMAGE_PREFIX}${num}${IMAGE_EXT}`;
-  });
+  function tryStart() {
+    if (sentencesLoaded && imagesLoaded) {
+      showRandom();
+    }
+  }
 
   function getLastIndex(key) {
     const raw = localStorage.getItem(key);
@@ -106,8 +120,10 @@
 
   function randomIndex(length, lastIndex) {
     if (length <= 1) return 0;
-    let i = Math.floor(Math.random() * length);
-    while (i === lastIndex) i = Math.floor(Math.random() * length);
+    let i;
+    do {
+      i = Math.floor(Math.random() * length);
+    } while (i === lastIndex);
     return i;
   }
 
@@ -118,13 +134,10 @@
   }
 
   function showRandom() {
-    if (sentences.length === 0) return;
+    if (!sentences.length || !images.length) return;
 
-    const lastSentenceIndex = getLastIndex("lastSentenceIndex");
-    const lastImageIndex = getLastIndex("lastImageIndex");
-
-    const sIndex = randomIndex(sentences.length, lastSentenceIndex);
-    const iIndex = randomIndex(images.length, lastImageIndex);
+    const sIndex = randomIndex(sentences.length, getLastIndex("lastSentenceIndex"));
+    const iIndex = randomIndex(images.length, getLastIndex("lastImageIndex"));
 
     setLastIndex("lastSentenceIndex", sIndex);
     setLastIndex("lastImageIndex", iIndex);
@@ -143,6 +156,7 @@
 
   document.getElementById("again").addEventListener("click", showRandom);
 </script>
+
 
 </body>
 </html>
