@@ -81,8 +81,7 @@
       sentencesLoaded = true;
       tryStart();
     })
-    .catch(err => {
-      console.error("Failed to load sentences.txt", err);
+    .catch(() => {
       sentences = ["Error loading sentences."];
       sentencesLoaded = true;
       tryStart();
@@ -95,8 +94,7 @@
       imagesLoaded = true;
       tryStart();
     })
-    .catch(err => {
-      console.error("Failed to load images.json", err);
+    .catch(() => {
       images = [];
       imagesLoaded = true;
       tryStart();
@@ -109,8 +107,7 @@
   }
 
   function getLastIndex(key) {
-    const raw = localStorage.getItem(key);
-    const n = Number(raw);
+    const n = Number(localStorage.getItem(key));
     return Number.isInteger(n) ? n : -1;
   }
 
@@ -134,24 +131,41 @@
   }
 
   function showRandom() {
-    if (!sentences.length || !images.length) return;
+    if (!sentences.length && !images.length) return;
 
-    const sIndex = randomIndex(sentences.length, getLastIndex("lastSentenceIndex"));
-    const iIndex = randomIndex(images.length, getLastIndex("lastImageIndex"));
-
-    setLastIndex("lastSentenceIndex", sIndex);
-    setLastIndex("lastImageIndex", iIndex);
+    // 75% sentence, 25% image
+    const showSentence = Math.random() < 0.75;
 
     const sentenceEl = document.getElementById("sentence");
     const imgEl = document.getElementById("pic");
 
-    sentenceEl.textContent = sentences[sIndex];
-    fadeIn(sentenceEl);
+    // Hide both first
+    sentenceEl.style.display = "none";
+    imgEl.style.display = "none";
 
-    imgEl.classList.remove("show");
-    imgEl.onload = () => fadeIn(imgEl);
-    imgEl.onerror = () => fadeIn(imgEl);
-    imgEl.src = images[iIndex];
+    if (showSentence && sentences.length) {
+      const sIndex = randomIndex(
+        sentences.length,
+        getLastIndex("lastSentenceIndex")
+      );
+      setLastIndex("lastSentenceIndex", sIndex);
+
+      sentenceEl.textContent = sentences[sIndex];
+      sentenceEl.style.display = "block";
+      fadeIn(sentenceEl);
+    } else if (images.length) {
+      const iIndex = randomIndex(
+        images.length,
+        getLastIndex("lastImageIndex")
+      );
+      setLastIndex("lastImageIndex", iIndex);
+
+      imgEl.classList.remove("show");
+      imgEl.onload = () => fadeIn(imgEl);
+      imgEl.onerror = () => fadeIn(imgEl);
+      imgEl.src = images[iIndex];
+      imgEl.style.display = "block";
+    }
   }
 
   document.getElementById("again").addEventListener("click", showRandom);
